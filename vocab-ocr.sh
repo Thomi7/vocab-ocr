@@ -1,12 +1,13 @@
 #!/bin/sh
 # $1: path
 # $2: image filename
+# $3: from tesseract language code
+# $4: to tesseract language code
 
-path=$1
-filename=$2
-
-from_lang="eng"
-to_lang="deu"
+path="$1"
+filename="$2"
+from_lang="$3"
+to_lang="$4"
 
 # split in half, color to gray
 convert -threshold 50% -monochrome -crop 50%x100% +repage "$path/$filename" "$path/split.png"
