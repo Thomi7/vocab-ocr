@@ -13,15 +13,22 @@ convert -crop 50%x100% +repage "$path/$filename" "$path/split.png"
 
 ocr()
 {
-    tesseract -l "$1" "$2" stdout | sed 's/\[.*$//' | sed 's/,/;/' | sed 's/‘.*$//'| sed 's/".*$//' | sed 's/|.*$//'| sed '/^$/d' | sed '/^\W\+$/d' > "$path/$1.txt"
+    tesseract -l "$1" "$2" stdout \
+        | sed   -e 's/\[.*$//'      `# remove everything after [` \
+                -e 's/,/;/'         `# replace , by ; (, is used as csv delimiter)` \
+                -e 's/‘.*$//'       `# remove everything after ‘` \
+                -e 's/".*$//'       `# remove everything after "` \
+                -e 's/|.*$//'       `# remove everything after |` \
+                -e '/^\W*$/d'       `# remove white lines` \
+        > "$path/$1.txt"
 }
 
 # ocr from language
-convert -threshold 50% -monochrome split-0.png split-0.png
+convert -threshold 50% -monochrome "$path/split-0.png" "$path/split-0.png"
 ocr "$from_lang" "$path/split-0.png"
 
 # ocr to language
-convert -threshold 50% -monochrome split-1.png split-1.png
+convert -threshold 50% -monochrome "$path/split-1.png" "$path/split-1.png"
 ocr "$to_lang" "$path/split-1.png"
 
 # merge to csv
