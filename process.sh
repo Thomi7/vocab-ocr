@@ -35,4 +35,4 @@ ocr "$to_lang" "$path/split-1.png"
 paste -d"," "$path/$from_lang.txt" "$path/$to_lang.txt" > "$path/merged.csv"
 
 # convert to xlsx
-ssconvert "$path/merged.csv" "$path/out.xlsx"
+csv2xls "$path/merged.csv" -o "$path/out.xls"
