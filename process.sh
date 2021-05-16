@@ -20,6 +20,7 @@ ocr()
                 -e 's/".*$//'       `# remove everything after "` \
                 -e 's/|.*$//'       `# remove everything after |` \
                 -e '/^\W*$/d'       `# remove white lines` \
+                -e 's/\s*$//'       `# remove trailing spaces` \
         > "$path/$1.txt"
 }
 
@@ -32,7 +33,4 @@ convert -threshold 50% -monochrome "$path/split-1.png" "$path/split-1.png"
 ocr "$to_lang" "$path/split-1.png"
 
 # merge to csv
-paste -d"," "$path/$from_lang.txt" "$path/$to_lang.txt" > "$path/merged.csv"
-
-# convert to xlsx
-csv2xls "$path/merged.csv" -d "," -o "$path/out.xls"
+paste -d"," "$path/$from_lang.txt" "$path/$to_lang.txt" > "$path/out.csv"

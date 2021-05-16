@@ -9,8 +9,8 @@ file_put_contents("$tmp_folder/in", file_get_contents('php://input'));
 
 shell_exec("/usr/bin/vocab-ocr.sh \"$tmp_folder\" \"in\"");
 
-header("Content-Type: application/vnd.ms-excel");
+header("Content-Type: text/csv");
 header("Content-Transfer-Encoding: Binary");
-readfile("$tmp_folder/out.xls");
+readfile("$tmp_folder/out.csv");
 
 ?>
