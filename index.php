@@ -1,23 +1,53 @@
 <?php
 
+$root_dir = "/tmp";
+
 $from_lang="eng";
 $to_lang="deu";
 
-if (getallheaders()["from-lang"] = "fr") {
+if ($_POST["from-lang"] == "fr") {
     $from_lang="fra";
+} else if ($_POST["from-lang"] == "es") {
+    $from_lang="spa";
 }
 
-# store image in tmp folder of its md5 hash
-$hash=hash_file('md5', 'php://input');
-$tmp_folder="/tmp/$hash";
-shell_exec("rm -rf $tmp_folder");
-mkdir($tmp_folder);
-file_put_contents("$tmp_folder/input", file_get_contents('php://input'));
+if (!empty(array_filter($_FILES['files']['name']))) {
+    // concatenate file hashes
+    $hash_concat="";
+    foreach ($_FILES['files']['tmp_name'] as $key => $value) {
+        $file_tmpname=$_FILES['files']['tmp_name'][$key];
+        $file_hash=hash_file('md5', $file_tmpname);
+        $hash_concat.=$hash1;
+    }
 
-shell_exec("/usr/bin/vocab-ocr.sh \"$tmp_folder\" \"input\" \"$from_lang\" \"$to_lang\"");
+    // calculate hash folder from random string and file hashes
+    $tmp_folder="/tmp/".hash('md5', uniqid().$hash_concat);
 
-header("Content-Type: text/csv");
-header("Content-Transfer-Encoding: Binary");
-readfile("$tmp_folder/out.csv");
+    // prepare tmp folder
+    shell_exec("rm -rf \"$tmp_folder\"");
+    mkdir($tmp_folder);
+
+    // save files to tmp directory
+    $file_counter=0;
+    foreach ($_FILES['files']['tmp_name'] as $key => $value) {
+        $file_tmpname=$_FILES['files']['tmp_name'][$key];
+        $file_counter+=1;
+        move_uploaded_file("$file_tmpname", "$tmp_folder/input$file_counter")
+            or exit("Error: file \"{$_FILES['files']['name'][$key]}\" couldn't be received");
+    }
+
+    // process image files
+    shell_exec("vocab-ocr-multiple \"$tmp_folder\" \"input\" \"$from_lang\" \"$to_lang\" $file_counter");
+
+    // return csv
+    header("Content-Type: text/csv");
+    header('Content-Disposition: attachment; filename="vocab.csv"');
+    readfile("$tmp_folder/concat.csv");
+
+    // clear processed data
+    shell_exec("rm -rf \"$tmp_folder\"");
+} else {
+    exit("Error: no files submitted");
+}
 
 ?>

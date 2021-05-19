@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+    <body>
+        <form action="index.php" method="POST" enctype="multipart/form-data">
+            <h2>Vocab OCR</h2>
+
+            <label>
+                Select image files to upload:
+                <input type="file" name="files[]" accept="image/*" multiple><br><br>
+            </label>
+
+            <label>
+                Convert from 
+                <select name="from-lang">
+                    <option value="en">english</option>
+                    <option value="fr">french</option>
+                    <option value="es">spanish</option>
+                </select>
+                to 
+                <select name="to-lang">
+                    <option value="de">german</option>
+                </select>
+            </label><br><br>
+
+            <label>
+                Preprocessing mode:
+                <select name="mode">
+                    <option value="default">default</option>
+                    <option value="greenwich">Greenwich</option>
+                </select>
+            </label><br><br>
+
+            <input type="submit" value="Convert">
+        </form>
+    </body>
+</html>
