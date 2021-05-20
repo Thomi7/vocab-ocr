@@ -3,46 +3,47 @@
 # $2: image filename
 # $3: from tesseract language code
 # $4: to tesseract language code
+# $5: modus
 
 path="$1"
 filename="$2"
 from_lang="$3"
 to_lang="$4"
+mode="$5"
 
-# threshold=50
-# [ ! -z $5 ] && threshold=$5
-
-# split in half, color to gray
-# convert -threshold "$threshold%" -monochrome -crop 50%x100% +repage "$path/$filename" "$path/split.png"
-convert -crop 50%x100% +repage "$path/$filename" "$path/split.png"
-# convert -threshold "30%" -monochrome "$path/split-0.png" "$path/split-0.png"
-# convert -threshold "$threshold%" -monochrome "$path/split-1.png" "$path/split-1.png"
-
-ocr()
+postprocess_text()
 {
-    tesseract -l "$1" "$2" stdout \
-        | sed   -e 's/\[.*$//'      `# remove everything after [` \
-                -e 's/,/;/'         `# replace , by ; (, is used as csv delimiter)` \
-                -e 's/‘.*$//'       `# remove everything after ‘` \
-                -e 's/".*$//'       `# remove everything after "` \
-                -e 's/|.*$//'       `# remove everything after |` \
-                -e 's/{.*$//'       `# remove everything after {` \
-                -e 's/AF/AE/'       `# replace 'AF' with 'AE'` \
-                -e 's/p\//pl/'      `# replace 'p/' with 'pl'` \
-                -e '/^\W*$/d'       `# remove white lines` \
-                -e 's/\s*$//'       `# remove trailing spaces` \
-        > "$path/$1.txt"
+    echo "$1" | sed -e 's/,/;/'         `# replace , by ; (, is used as csv delimiter)` \
+                    -e '/^\W*$/d'       `# remove white lines` \
+                    -e 's/\s*$//'       `# remove trailing spaces`
 }
 
-# ocr from language
-convert "$path/split-0.png" -fuzz 40% -fill black -opaque "#000000" "$path/split-0.png"
-convert -threshold 10% -monochrome "$path/split-0.png" "$path/split-0.png"
-ocr "$from_lang" "$path/split-0.png"
+postprocess_greenwich_text()
+{
+    echo "$1" | vim -c "silent! %s/\(\S.*\)-\s*$\n\(\S.*\)$/\1\2/g" \
+                    -c "silent! %s/\(\S.*\)$\n\(\S.*\)$/\1 \2/g" -c "wq! $path/sed" - > /dev/null
 
-# ocr to language
-convert "$path/split-1.png" -fuzz 50% -fill black -opaque "#0000FF" -opaque "#000000" "$path/split-1.png"
-convert -threshold 10% -monochrome "$path/split-1.png" "$path/split-1.png"
-ocr "$to_lang" "$path/split-1.png"
+    sed "$path/sed" -e 's/\[.*$//'      `# remove everything after [` \
+                    -e 's/|.*$//'       `# remove everything after |` \
+                    -e 's/{.*$//'       `# remove everything after {` \
+                    -e 's/AF/AE/'       `# replace 'AF' with 'AE'` \
+                    -e 's/p\//pl/'      `# replace 'p/' with`
+}
 
-# merge to csv
-paste -d"," "$path/$from_lang.txt" "$path/$to_lang.txt" > "$path/out.csv"
+convert -crop 50%x100% +repage "$path/$filename" "$path/split.png"
+if [ "$mode" = "greenwich" ]
+then
+    convert -fuzz 40% -fill black -opaque "#000000" -monochrome "$path/split-0.png" "$path/split-0.png"
+    convert -fuzz 50% -fill black -opaque "#000000" -opaque "#0000FF" -monochrome "$path/split-1.png" "$path/split-1.png"
+
+    postprocess_text "$(postprocess_greenwich_text "$(tesseract -l "$from_lang" "$path/split-0.png" stdout)")" > "$from_lang"
+    postprocess_text "$(postprocess_greenwich_text "$(tesseract -l "$to_lang" "$path/split-1.png" stdout)")" > "$to_lang"
+    paste -d"," "$from_lang" "$to_lang" > "$path/out.csv"
+else
+    convert -monochrome "$path/split-0.png" "$path/split-0.png"
+    convert -monochrome "$path/split-1.png" "$path/split-1.png"
+
+    postprocess_text "$(tesseract -l "$from_lang" "$path/split-0.png" stdout)" > "$from_lang"
+    postprocess_text "$(tesseract -l "$to_lang" "$path/split-1.png" stdout)" > "$to_lang"
+    paste -d"," "$from_lang" "$to_lang" > "$path/out.csv"
+fi
