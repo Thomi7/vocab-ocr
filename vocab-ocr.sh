@@ -3,7 +3,7 @@
 # $2: image filename
 # $3: from tesseract language code
 # $4: to tesseract language code
-# $5: modus
+# $5: mode
 
 path="$1"
 filename="$2"
@@ -36,14 +36,14 @@ then
     convert -fuzz 40% -fill black -opaque "#000000" -monochrome "$path/split-0.png" "$path/split-0.png"
     convert -fuzz 50% -fill black -opaque "#000000" -opaque "#0000FF" -monochrome "$path/split-1.png" "$path/split-1.png"
 
-    postprocess_text "$(postprocess_greenwich_text "$(tesseract -l "$from_lang" "$path/split-0.png" stdout)")" > "$from_lang"
-    postprocess_text "$(postprocess_greenwich_text "$(tesseract -l "$to_lang" "$path/split-1.png" stdout)")" > "$to_lang"
-    paste -d"," "$from_lang" "$to_lang" > "$path/out.csv"
+    postprocess_text "$(postprocess_greenwich_text "$(tesseract -l "$from_lang" "$path/split-0.png" stdout)")" > "$path/$from_lang"
+    postprocess_text "$(postprocess_greenwich_text "$(tesseract -l "$to_lang" "$path/split-1.png" stdout)")" > "$path/$to_lang"
+    paste -d"," "$path/$from_lang" "$path/$to_lang" > "$path/out.csv"
 else
-    convert -monochrome "$path/split-0.png" "$path/split-0.png"
-    convert -monochrome "$path/split-1.png" "$path/split-1.png"
+    # convert -monochrome "$path/split-0.png" "$path/split-0.png"     docker image has imagemagick 6, where this option performs bad
+    # convert -monochrome "$path/split-1.png" "$path/split-1.png"
 
-    postprocess_text "$(tesseract -l "$from_lang" "$path/split-0.png" stdout)" > "$from_lang"
-    postprocess_text "$(tesseract -l "$to_lang" "$path/split-1.png" stdout)" > "$to_lang"
-    paste -d"," "$from_lang" "$to_lang" > "$path/out.csv"
+    postprocess_text "$(tesseract -l "$from_lang" "$path/split-0.png" stdout)" > "$path/$from_lang"
+    postprocess_text "$(tesseract -l "$to_lang" "$path/split-1.png" stdout)" > "$path/$to_lang"
+    paste -d"," "$path/$from_lang" "$path/$to_lang" > "$path/out.csv"
 fi

@@ -11,6 +11,11 @@ if ($_POST['from-lang'] == 'fr') {
     $from_lang='spa';
 }
 
+$mode='default';
+if ($_POST['mode'] == 'greenwich') {
+    $mode='greenwich';
+}
+
 if (!empty(array_filter($_FILES['files']['name']))) {
     // prepare tmp folder
     $tmp_dir=System::mktemp('-d vocab-ocr-');
@@ -25,7 +30,7 @@ if (!empty(array_filter($_FILES['files']['name']))) {
     }
 
     // process image files
-    shell_exec("vocab-ocr-multiple \"$tmp_dir\" \"input\" \"$from_lang\" \"$to_lang\" $file_counter");
+    shell_exec("vocab-ocr-multiple \"$tmp_dir\" \"input\" \"$from_lang\" \"$to_lang\" \"$mode\" $file_counter");
 
     // return csv
     header('Content-Type: text/csv');
