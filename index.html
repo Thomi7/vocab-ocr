@@ -6,26 +6,33 @@
 
             <label>
                 Select image files to upload:
-                <input type="file" name="files[]" accept="image/*" multiple><br><br>
-            </label>
+                <input type="file" name="files[]" accept="image/*" multiple>
+            </label><br><br>
 
             <label>
-                Convert from 
-                <select name="from-lang">
-                    <option value="en">english</option>
-                    <option value="fr">french</option>
-                    <option value="es">spanish</option>
-                </select>
-                to 
-                <select name="to-lang">
-                    <option value="de">german</option>
+                Left column language: 
+                <select name="left-lang">
+                    <option value="deu">german</option>
+                    <option value="eng" selected="selected">english</option>
+                    <option value="fra">french</option>
+                    <option value="spa">spanish</option>
                 </select>
             </label><br><br>
 
             <label>
-                Preprocessing mode:
+                Right column language: 
+                <select name="right-lang">
+                    <option value="deu" selected="selected">german</option>
+                    <option value="eng">english</option>
+                    <option value="fra">french</option>
+                    <option value="spa">spanish</option>
+                </select>
+            </label><br><br>
+
+            <label>
+                Pre- and Postprocessing mode:
                 <select name="mode">
-                    <option value="default">default</option>
+                    <option value="default" selected="selected">default</option>
                     <option value="greenwich">Greenwich</option>
                 </select>
             </label><br><br>
