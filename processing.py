@@ -1,4 +1,5 @@
-from PIL import Image
+#!/usr/bin/python3
+
 import pytesseract
 import cv2
 import math
@@ -6,6 +7,7 @@ import re
 import tempfile
 import os
 import numpy as np
+import argparse
 
 def process(image, lang_from, lang_to, preprocess_from, preprocess_to, postprocess_from, postprocess_to, tmp_dir=tempfile.TemporaryDirectory()):
 
@@ -39,7 +41,7 @@ def process(image, lang_from, lang_to, preprocess_from, preprocess_to, postproce
     out = ""
     for line1, line2 in zip(text_from.split('\n'), text_to.split('\n')):
         out += line1 + "," + line2 + "\n"
-    return out;
+    return out.strip();
 
 def postprocess_text(text):
     text = text.replace(',', ';')                                   # replace , by ; (, is used as csv delimiter)
@@ -92,10 +94,55 @@ def preprocess_image_greenwich_to(image):
     bkg = cv2.bitwise_and(bk, bk, mask=mask)
     image = cv2.bitwise_or(image, bkg)
 
-    cv2.imshow('output', cv2.resize(image, None, fx=0.4, fy=0.4))
-    cv2.waitKey()
+    # cv2.imshow('output', cv2.resize(image, None, fx=0.4, fy=0.4))
+    # cv2.waitKey()
     return image
 
-image='Untitled2.png'
-print(process(image, 'eng', 'deu', preprocess_image_greenwich_from, preprocess_image_greenwich_to,
-        postprocess_text_greenwich, postprocess_text_greenwich))
+def image_to_csv(image, from_lang, to_lang, mode='default'):
+
+    # only default pre- and postprocessing in other modes
+    preprocess_from = lambda i : i
+    preprocess_to = lambda i : i
+    postprocess_from = lambda t : t
+    postprocess_to = lambda t : t
+
+    if mode == 'greenwich':
+        preprocess_from = preprocess_image_greenwich_from
+        preprocess_to = preprocess_image_greenwich_to
+        postprocess_from = postprocess_text_greenwich
+        postprocess_to = postprocess_text_greenwich
+
+    return process(image, from_lang, to_lang, preprocess_from, preprocess_to, postprocess_from, postprocess_to)
+
+def images_to_csv(images, from_lang, to_lang, mode='default'):
+    out = ""
+    for image in images:
+        out += image_to_csv(image, from_lang, to_lang, mode) + "\n\n"
+    return out.strip()
+
+def process_directory(dir_path, from_lang, to_lang, mode='default'):
+    images=[]
+    for image in os.listdir(dir_path):
+        images.append(cv2.imread(os.path.join(dir_path, image)))
+    return images_to_csv(images, from_lang, to_lang, mode)
+
+
+parser = argparse.ArgumentParser(description='Process some integers.')
+parser.add_argument('path', metavar='path', type=str,
+                    help='path to directory where images are in')
+parser.add_argument('left_lang', metavar='left-lang', type=str,
+                    help='language of left column (tesseract lang code, e.g. deu, eng)')
+parser.add_argument('right_lang', metavar='right-lang', type=str,
+                    help='language of right column (tesseract lang code, e.g. deu, eng)')
+parser.add_argument('mode', metavar='mode', type=str, nargs='?',
+                    help='image processing mode (default, greenwich)')
+args = parser.parse_args()
+
+if 'mode' in args:
+    print(process_directory(args.path, args.left_lang, args.right_lang, args.mode))
+else:
+    print(process_directory(args.path, args.left_lang, args.right_lang))
+# image1=cv2.imread('Untitled2.png')
+# image2=cv2.imread('2-1.png')
+# images=[image1, image2]
+# print(images_to_csv(images, 'eng', 'deu', 'greenwich'))

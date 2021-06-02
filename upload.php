@@ -29,13 +29,12 @@ if (!empty(array_filter($_FILES['files']['name']))) {
             or exit("Error: file \"{$_FILES['files']['name'][$key]}\" couldn't be received");
     }
 
-    // process image files
-    shell_exec("vocab-ocr-multiple \"$tmp_dir\" \"input\" \"$from_lang\" \"$to_lang\" \"$mode\" $file_counter");
-
     // return csv
     header('Content-Type: text/csv');
-    header('Content-Disposition: attachment; filename="vocab.csv"');
-    readfile("$tmp_dir/concat.csv");
+    $date = date('Y-m-d_H-i-s');
+    header("Content-Disposition: attachment; filename=\"$from_lang\_$to_lang\_$date.csv\"");
+    $csv = shell_exec("vocab-ocr \"$tmp_dir\" \"$from_lang\" \"$to_lang\" \"$mode\"");
+    echo "$csv";
 } else {
     exit('Error: no files submitted');
 }
