@@ -9,7 +9,7 @@ import os
 import numpy as np
 import argparse
 
-def process(image, lang_from, lang_to, preprocess_from, preprocess_to, postprocess_from, postprocess_to, tmp_dir=tempfile.TemporaryDirectory()):
+def process(image, left_lang, right_lang, preprocess_left, preprocess_right, postprocess_left, postprocess_right, tmp_dir=tempfile.TemporaryDirectory()):
 
     # cv2.imshow('output', cv2.resize(image, None, fx=0.3, fy=0.3))
     # cv2.waitKey()
@@ -17,29 +17,29 @@ def process(image, lang_from, lang_to, preprocess_from, preprocess_to, postproce
     # split image horizontally in half
     height, width = image.shape[0:2]
     half_width = math.floor(width/2)
-    image_from = image[0:height, 0:half_width]
-    image_to = image[0:height, half_width+1:width]
+    left_image = image[0:height, 0:half_width]
+    right_image = image[0:height, half_width+1:width]
 
-    preprocess_from(image_from)
-    preprocess_to(image_to)
+    preprocess_left(left_image)
+    preprocess_right(right_image)
 
-    image_from_path = os.path.join(tmp_dir.name, 'from.png')
-    cv2.imwrite(image_from_path, image_from)
-    image_to_path = os.path.join(tmp_dir.name, 'to.png')
-    cv2.imwrite(image_to_path, image_to)
+    left_image_path = os.path.join(tmp_dir.name, 'left.png')
+    cv2.imwrite(left_image_path, left_image)
+    right_image_path = os.path.join(tmp_dir.name, 'right.png')
+    cv2.imwrite(right_image_path, right_image)
 
-    text_from = pytesseract.image_to_string(image_from_path, lang=lang_from)
-    text_to = pytesseract.image_to_string(image_to_path, lang=lang_to)
+    left_text = pytesseract.image_to_string(left_image_path, lang=left_lang)
+    right_text = pytesseract.image_to_string(right_image_path, lang=right_lang)
 
-    # print(text_from)
-    # cv2.imshow('test', image_from)
+    # print(left_text)
+    # cv2.imshow('test', left_image)
     # cv2.waitKey(0)
 
-    text_from = postprocess_text(postprocess_from(text_from))
-    text_to = postprocess_text(postprocess_to(text_to))
+    left_text = postprocess_text(postprocess_left(left_text))
+    right_text = postprocess_text(postprocess_right(right_text))
 
     out = ""
-    for line1, line2 in zip(text_from.split('\n'), text_to.split('\n')):
+    for line1, line2 in zip(left_text.split('\n'), right_text.split('\n')):
         out += line1 + "," + line2 + "\n"
     return out.strip();
 
@@ -59,7 +59,7 @@ def postprocess_text_greenwich(text):
     text = text.replace('p/', 'pl')                                 # replace 'p/' with 'pl'
     return text
 
-def preprocess_image_greenwich_from(image):
+def preprocess_image_greenwich_left(image):
     # image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     # image = cv2.threshold(image, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
     lower = np.array([0,0,0])
@@ -77,7 +77,7 @@ def preprocess_image_greenwich_from(image):
     # cv2.waitKey()
     return image
 
-def preprocess_image_greenwich_to(image):
+def preprocess_image_greenwich_right(image):
     # image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     # image = cv2.threshold(image, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
     # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -98,33 +98,33 @@ def preprocess_image_greenwich_to(image):
     # cv2.waitKey()
     return image
 
-def image_to_csv(image, from_lang, to_lang, mode='default'):
+def right_image_csv(image, left_lang, right_lang, mode='default'):
 
     # only default pre- and postprocessing in other modes
-    preprocess_from = lambda i : i
-    preprocess_to = lambda i : i
-    postprocess_from = lambda t : t
-    postprocess_to = lambda t : t
+    preprocess_left = lambda i : i
+    preprocess_right = lambda i : i
+    postprocess_left = lambda t : t
+    postprocess_right = lambda t : t
 
     if mode == 'greenwich':
-        preprocess_from = preprocess_image_greenwich_from
-        preprocess_to = preprocess_image_greenwich_to
-        postprocess_from = postprocess_text_greenwich
-        postprocess_to = postprocess_text_greenwich
+        preprocess_left = preprocess_image_greenwich_left
+        preprocess_right = preprocess_image_greenwich_right
+        postprocess_left = postprocess_text_greenwich
+        postprocess_right = postprocess_text_greenwich
 
-    return process(image, from_lang, to_lang, preprocess_from, preprocess_to, postprocess_from, postprocess_to)
+    return process(image, left_lang, right_lang, preprocess_left, preprocess_right, postprocess_left, postprocess_right)
 
-def images_to_csv(images, from_lang, to_lang, mode='default'):
+def images_to_csv(images, left_lang, right_lang, mode='default'):
     out = ""
     for image in images:
-        out += image_to_csv(image, from_lang, to_lang, mode) + "\n\n"
+        out += right_image_csv(image, left_lang, right_lang, mode) + "\n\n"
     return out.strip()
 
-def process_directory(dir_path, from_lang, to_lang, mode='default'):
+def process_directory(dir_path, left_lang, right_lang, mode='default'):
     images=[]
     for image in os.listdir(dir_path):
         images.append(cv2.imread(os.path.join(dir_path, image)))
-    return images_to_csv(images, from_lang, to_lang, mode)
+    return images_to_csv(images, left_lang, right_lang, mode)
 
 
 parser = argparse.ArgumentParser(description='Process some integers.')
