@@ -14,7 +14,7 @@ if (in_array($_POST['left-lang'], $installed_langs)) {
 // validate right lang
 $right_lang = 'deu';
 if (in_array($_POST['right-lang'], $installed_langs)) {
-    $left_lang = $_POST['right-lang'];
+    $right_lang = $_POST['right-lang'];
 }
 
 // validate mode
