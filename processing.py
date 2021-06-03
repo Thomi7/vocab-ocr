@@ -9,10 +9,16 @@ import os
 import numpy as np
 import argparse
 
-def process(image, left_lang, right_lang, preprocess_left, preprocess_right, postprocess_left, postprocess_right, tmp_dir=tempfile.TemporaryDirectory()):
+import time
 
-    # cv2.imshow('output', cv2.resize(image, None, fx=0.3, fy=0.3))
-    # cv2.waitKey()
+def showimage(image):
+    img_path = '/tmp/image' + str(round(time.time() * 1000)) + '.png'
+    cv2.imwrite(img_path, image)
+    print(img_path)
+    cmd = 'imv ' + img_path
+    os.system(cmd)
+
+def process(image, left_lang, right_lang, preprocess_left, preprocess_right, postprocess_left, postprocess_right, tmp_dir=tempfile.TemporaryDirectory()):
 
     # split image horizontally in half
     height, width = image.shape[0:2]
@@ -20,8 +26,8 @@ def process(image, left_lang, right_lang, preprocess_left, preprocess_right, pos
     left_image = image[0:height, 0:half_width]
     right_image = image[0:height, half_width+1:width]
 
-    preprocess_left(left_image)
-    preprocess_right(right_image)
+    left_image = preprocess_left(left_image)
+    right_image = preprocess_right(right_image)
 
     left_image_path = os.path.join(tmp_dir.name, 'left.png')
     cv2.imwrite(left_image_path, left_image)
@@ -31,13 +37,10 @@ def process(image, left_lang, right_lang, preprocess_left, preprocess_right, pos
     left_text = pytesseract.image_to_string(left_image_path, lang=left_lang)
     right_text = pytesseract.image_to_string(right_image_path, lang=right_lang)
 
-    # print(left_text)
-    # cv2.imshow('test', left_image)
-    # cv2.waitKey(0)
-
     left_text = postprocess_text(postprocess_left(left_text))
     right_text = postprocess_text(postprocess_right(right_text))
 
+    # TODO: fehlende Zeilen wenn links/rechts was fehlt
     out = ""
     for line1, line2 in zip(left_text.split('\n'), right_text.split('\n')):
         out += line1 + "," + line2 + "\n"
@@ -60,42 +63,40 @@ def postprocess_text_greenwich(text):
     return text
 
 def preprocess_image_greenwich_left(image):
-    # image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    # image = cv2.threshold(image, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+
+    # remove non-black pixels
     lower = np.array([0,0,0])
-    i = 170
-    upper = np.array([i,i,i]) # BGR
+    threshold = 120 # 100-120
+    upper = np.array([threshold, threshold, threshold]) # BGR
     mask = cv2.inRange(image, lower, upper)
-    image = cv2.bitwise_and(image, image, mask= mask)
+    image = cv2.bitwise_and(image, image, mask=mask)
 
+    # make non-black pixels white
     mask = cv2.bitwise_not(mask)
-    bk = np.full(image.shape, 255, dtype=np.uint8)
-    bkg = cv2.bitwise_and(bk, bk, mask=mask)
-    image = cv2.bitwise_or(image, bkg)
+    full_white = np.full(image.shape, 255, dtype=np.uint8)
+    image = cv2.bitwise_or(image, cv2.bitwise_and(full_white, full_white, mask=mask))
 
-    # cv2.imshow('output', cv2.resize(image, None, fx=0.4, fy=0.4))
-    # cv2.waitKey()
     return image
 
 def preprocess_image_greenwich_right(image):
-    # image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    # image = cv2.threshold(image, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
-    # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    # image = cv2.line(image, (0, 0), (0, 300), (255, 0, 0), 5)
-    # image = cv2.line(image, (100, 0), (100, 300), (0, 255, 0), 5)
-    # image = cv2.line(image, (200, 0), (200, 300), (0, 0, 255), 5)
-    lower = np.array([0,0,0])
-    upper = np.array([255,200,180]) # BGR
+    original = image
+
+    # make blue pixels black and remove non-blue pixels
+    threshold = 150
+    lower = np.array([255-threshold , 0, 0])
+    upper = np.array([255, threshold, threshold]) # BGR
     mask = cv2.inRange(image, lower, upper)
-    image = cv2.bitwise_and(image, image, mask= mask)
+    full_black = np.full(image.shape, 0, dtype=np.uint8)
+    image = cv2.bitwise_and(image, full_black, mask= mask)
 
+    # readd old background
     mask = cv2.bitwise_not(mask)
-    bk = np.full(image.shape, 255, dtype=np.uint8)
-    bkg = cv2.bitwise_and(bk, bk, mask=mask)
-    image = cv2.bitwise_or(image, bkg)
+    image = cv2.bitwise_or(image, cv2.bitwise_and(original, original, mask=mask))
 
-    # cv2.imshow('output', cv2.resize(image, None, fx=0.4, fy=0.4))
-    # cv2.waitKey()
+    # binarize image
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    image = cv2.threshold(image, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+
     return image
 
 def right_image_csv(image, left_lang, right_lang, mode='default'):
@@ -142,7 +143,3 @@ if 'mode' in args:
     print(process_directory(args.path, args.left_lang, args.right_lang, args.mode))
 else:
     print(process_directory(args.path, args.left_lang, args.right_lang))
-# image1=cv2.imread('Untitled2.png')
-# image2=cv2.imread('2-1.png')
-# images=[image1, image2]
-# print(images_to_csv(images, 'eng', 'deu', 'greenwich'))
