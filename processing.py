@@ -123,7 +123,7 @@ def images_to_csv(images, left_lang, right_lang, mode='default'):
 
 def process_directory(dir_path, left_lang, right_lang, mode='default'):
     images=[]
-    for image in os.listdir(dir_path):
+    for image in sorted(os.listdir(dir_path)):
         images.append(cv2.imread(os.path.join(dir_path, image)))
     return images_to_csv(images, left_lang, right_lang, mode)
 
