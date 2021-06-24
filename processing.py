@@ -40,10 +40,16 @@ def process(image, left_lang, right_lang, preprocess_left, preprocess_right, pos
     left_text = postprocess_text(postprocess_left(left_text))
     right_text = postprocess_text(postprocess_right(right_text))
 
-    # TODO: fehlende Zeilen wenn links/rechts was fehlt
-    out = ""
-    for line1, line2 in zip(left_text.split('\n'), right_text.split('\n')):
-        out += line1 + "," + line2 + "\n"
+    left_split = left_text.split('\n')
+    right_split = right_text.split('\n')
+    # extend splits to match each others length
+    for _ in range(1,len(left_split)-len(right_split)):
+        right_split += ['']
+    for _ in range(1,len(right_split)-len(left_split)):
+        left_split += ['']
+    out = ''
+    for line1, line2 in zip(left_split, right_split):
+        out += line1 + ',' + line2 + '\n'
     return out.strip();
 
 def postprocess_text(text):
