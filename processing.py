@@ -138,9 +138,9 @@ parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('path', metavar='path', type=str,
                     help='path to directory where images are in')
 parser.add_argument('left_lang', metavar='left-lang', type=str,
-                    help='language of left column (tesseract lang code, e.g. deu, eng)')
+                    help='language of left column (ISO 639-2/T language code, e.g. deu, eng)')
 parser.add_argument('right_lang', metavar='right-lang', type=str,
-                    help='language of right column (tesseract lang code, e.g. deu, eng)')
+                    help='language of right column (ISO 639-2/T language code, e.g. deu, eng)')
 parser.add_argument('mode', metavar='mode', type=str, nargs='?',
                     help='image processing mode (default, greenwich)')
 args = parser.parse_args()
