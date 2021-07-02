@@ -2,6 +2,7 @@ FROM php:apache
 
 RUN apt update && apt install -y tesseract-ocr python3-minimal python3-pip python3-opencv
 
+RUN pip3 install pillow
 RUN pip3 install pytesseract
 RUN apt purge -y python3-pip && apt autoremove -y
 
