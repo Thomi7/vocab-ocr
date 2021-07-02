@@ -1,8 +1,12 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <title>vocab-ocr</title>
+        <meta charset="UTF-8">
+    </head>
     <body>
         <form action="upload.php" method="POST" enctype="multipart/form-data">
-            <h2>Vocab OCR</h2>
+            <h2>vocab-ocr</h2>
 
             <label>
                 Select image files to upload:
@@ -39,5 +43,16 @@
 
             <input type="submit" value="Convert">
         </form>
+        <br><br>
+        <h3>Modes:</h3>
+        <h4>default:</h4>
+        <p>Only performs OCR. No pre processing. Use when other modes don't match or give bad results.</p>
+        <hr>
+        <h4>Greenwich:</h4>
+        <img alt="greenwich test image" src="images/greenwich.png" width="400"/>
+        <h5>Pre processing:</h5>
+        <p>Filters out every color but black from the left column and everything but blue from the right column. Tries to remove the horizontal lines.</p>
+        <h5>Post processing:</h5>
+        <p>Removes every line from the output that starts with '[', '|' or some other character that tesseract detects faulty to remove the pronounciation hints.
     </body>
 </html>

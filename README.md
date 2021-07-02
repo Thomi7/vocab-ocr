@@ -50,7 +50,7 @@ As you can see it works really well on the spanish example but not so well on th
 
 There are two ways to use this tool:
 - [webinterface (recommended, docker image, server side)](#webinterface)
-- [Command line (no docker image, client side)](#command-line)
+- [command line (no docker image, client side)](#command-line)
 
 ### Webinterface:
 

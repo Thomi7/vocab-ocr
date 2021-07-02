@@ -12,5 +12,6 @@ RUN sed -e 's/post_max_size = 8M/post_max_size = 100M/' -e 's/upload_max_filesiz
 
 # install vocab-ocr files
 COPY index.html /var/www/html/index.html
+COPY images /var/www/html/images
 COPY upload.php /var/www/html/upload.php
 COPY processing.py /usr/bin/vocab-ocr
