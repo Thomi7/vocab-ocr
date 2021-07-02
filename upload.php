@@ -18,7 +18,7 @@ if (in_array($_POST['right-lang'], $installed_langs)) {
 }
 
 // validate mode
-$modes = ['default', 'greenwich'];
+$modes = ['default', 'pronunciation', 'greenwich'];
 $mode='default';
 if (in_array($_POST['mode'], $modes)) {
     $mode = $_POST['mode'];

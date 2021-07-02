@@ -58,12 +58,16 @@ def postprocess_text(text):
     text = re.sub(r'\s*$', '', text, 0, re.MULTILINE)               # remove trailing spaces
     return text
 
-def postprocess_text_greenwich(text):
-    text = re.sub(r'-\s*\n(\S)', r'\1', text, 0, re.MULTILINE)      # replace hyphen line break with concatenated word
-
+def postprocess_text_pronunciation(text):
     text = re.sub(r'\[.*$', '', text, 0, re.MULTILINE)              # remove everything after [
     text = re.sub(r'\|.*$', '', text, 0, re.MULTILINE)              # remove everything after |
     text = re.sub(r'{.*$', '', text, 0, re.MULTILINE)               # remove everything after {
+    return text
+
+def postprocess_text_greenwich(text):
+    text = re.sub(r'-\s*\n(\S)', r'\1', text, 0, re.MULTILINE)      # replace hyphen line break with concatenated word
+
+    text = postprocess_text_pronunciation(text)
     text = text.replace('AF', 'AE')                                 # replace 'AF' with 'AE'
     text = text.replace('p/', 'pl')                                 # replace 'p/' with 'pl'
     return text
@@ -118,6 +122,9 @@ def right_image_csv(image, left_lang, right_lang, mode='default'):
         preprocess_right = preprocess_image_greenwich_right
         postprocess_left = postprocess_text_greenwich
         postprocess_right = postprocess_text_greenwich
+    elif mode == 'pronunciation':
+        postprocess_left = postprocess_text_pronunciation
+        postprocess_right = postprocess_text_pronunciation
 
     return process(image, left_lang, right_lang, preprocess_left, preprocess_right, postprocess_left, postprocess_right)
 
@@ -142,7 +149,7 @@ parser.add_argument('left_lang', metavar='left-lang', type=str,
 parser.add_argument('right_lang', metavar='right-lang', type=str,
                     help='language of right column (ISO 639-2/T language code, e.g. deu, eng)')
 parser.add_argument('mode', metavar='mode', type=str, nargs='?',
-                    help='image processing mode (default, greenwich)')
+                    help='image processing mode (default, pronunciation, greenwich)')
 args = parser.parse_args()
 
 if 'mode' in args:

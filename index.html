@@ -34,10 +34,11 @@
             </label><br><br>
 
             <label>
-                Pre- and Postprocessing mode:
+                Pre- and Post processing mode:
                 <select name="mode">
                     <option value="default" selected="selected">default</option>
-                    <option value="greenwich">Greenwich</option>
+                    <option value="pronunciation">pronunciation</option>
+                    <option value="greenwich">greenwich</option>
                 </select>
             </label><br><br>
 
@@ -48,11 +49,18 @@
         <h4>default:</h4>
         <p>Only performs OCR. No pre processing. Use when other modes don't match or give bad results.</p>
         <hr>
-        <h4>Greenwich:</h4>
+        <h4>pronunciation:</h4>
+        <img alt="pronunciation test image" src="images/pronunciation.png" width="400"/>
+        <h5>Pre processing:</h5>
+        <p>None.</p>
+        <h5>Post processing:</h5>
+        <p>Removes every line from the output that starts with '[', '|' or some other character that tesseract detects faulty to remove the pronunciation hints.
+        <hr>
+        <h4>greenwich:</h4>
         <img alt="greenwich test image" src="images/greenwich.png" width="400"/>
         <h5>Pre processing:</h5>
         <p>Filters out every color but black from the left column and everything but blue from the right column. Tries to remove the horizontal lines.</p>
         <h5>Post processing:</h5>
-        <p>Removes every line from the output that starts with '[', '|' or some other character that tesseract detects faulty to remove the pronounciation hints.
+        <p>Removes every line from the output that starts with '[', '|' or some other character that tesseract detects faulty to remove the pronunciation hints.
     </body>
 </html>
