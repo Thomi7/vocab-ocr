@@ -41,9 +41,9 @@ if (!empty(array_filter($_FILES['files']['name']))) {
     $csv = shell_exec("vocab-ocr \"$tmp_dir\" \"$left_lang\" \"$right_lang\" \"$mode\"");
 
     // return csv
-    header('Content-Type: text/csv');
+    header('Content-Type: text/tab-separated-values');
     $date = date('Y-m-d_H-i-s');
-    header("Content-Disposition: attachment; filename=\"$left_lang\_$right_lang\_$date.csv\"");
+    header("Content-Disposition: attachment; filename=\"$left_lang\_$right_lang\_$date.tsv\"");
     echo "$csv";
 } else {
     exit('Error: no files submitted');

@@ -49,11 +49,10 @@ def process(image, left_lang, right_lang, preprocess_left, preprocess_right, pos
         left_split += ['']
     out = ''
     for line1, line2 in zip(left_split, right_split):
-        out += line1 + ',' + line2 + '\n'
+        out += line1 + '\t' + line2 + '\n'
     return out.strip();
 
 def postprocess_text(text):
-    text = text.replace(',', ';')                                   # replace , by ; (, is used as csv delimiter)
     text = re.sub(r'^\s*\n', '', text, 0, re.MULTILINE)             # remove white lines
     text = re.sub(r'\s*$', '', text, 0, re.MULTILINE)               # remove trailing spaces
     return text

@@ -1,6 +1,6 @@
 # vocab-ocr
 
-Convert scans/images of vocabulary into csv (to use it in some vocabulary training app).
+Convert scans/images of vocabulary into tsv (to use it in some vocabulary training app).
 
 Everything is packaged in a [docker image](https://hub.docker.com/r/fabianthomas/vocab-ocr). Just deploy it on some server and use the web interface conveniently to process images from any device.
 
@@ -44,7 +44,7 @@ The image quality that you provide is the most important thing. Use a scanner fo
 
 ---
 
-As you can see it works really well on the spanish example but not so well on the greenwich one. This comes from the annoying pronunciation hints at the end of the english vocabulary and the coloring. For that reason give good images to the process. Note that you will always need to open the csv file in some spreadsheet editor to fix stuff like the '1A' in the spanish example but for good scans it works really well.
+As you can see it works really well on the spanish example but not so well on the greenwich one. This comes from the annoying pronunciation hints at the end of the english vocabulary and the coloring. For that reason give good images to the process. Note that you will always need to open the tsv file in some spreadsheet editor to fix stuff like the '1A' in the spanish example but for good scans it works really well.
 
 ## Installation/Setup
 
