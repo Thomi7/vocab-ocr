@@ -58,7 +58,7 @@ There are two ways to use this tool:
 
 Install [docker](https://www.docker.com/) on your machine. Then do:
 ```bash
-docker pull ghcr.io/fabian-thomas/vocab-ocr
+docker pull ghcr.io/fabian-thomas/vocab-ocr:latest
 docker run --restart=always -p {YOUR_PORT}:80 -d ghcr.io/fabian-thomas/vocab-ocr
 ```
 where `--restart=always` is optional and `{YOUR_PORT}` should be replaced by some free port.
