@@ -72,7 +72,7 @@ By default English, French, German and Spanish are supported but it's really eas
 
 #### Usage:
 
-Navigate to `{YOUR_SERVERS_URL}:{YOUR_PORT}` where you insert either 80 or the port you specified before. Everything but the pre- and post processing modes should be straight forward. There is more information on that on the web interface.
+Navigate to `{YOUR_SERVERS_URL}:{YOUR_PORT}`. Everything but the pre- and post processing modes should be straight forward. There is more information on that on the web interface.
 
 ### Command line:
 
