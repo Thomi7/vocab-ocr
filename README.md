@@ -2,7 +2,7 @@
 
 Convert scans/images of vocabulary into tsv (to use it in some vocabulary training app).
 
-Everything is packaged in a [docker image](https://hub.docker.com/r/fabianthomas/vocab-ocr). Just deploy it on some server and use the web interface conveniently to process images from any device.
+Everything is packaged in a docker image, which can be pulled from [GitHub packages](https://github.com/fabian-thomas/vocab-ocr/pkgs/container/vocab-ocr). Just deploy it on some server and use the web interface conveniently to process images from any device.
 
 ## Performance/Usability
 
@@ -58,10 +58,10 @@ There are two ways to use this tool:
 
 Install [docker](https://www.docker.com/) on your machine. Then do:
 ```bash
-docker pull fabianthomas/vocab-ocr
-docker run --restart=always -d fabianthomas/vocab-ocr
+docker pull ghcr.io/fabian-thomas/vocab-ocr
+docker run --restart=always -p {YOUR_PORT}:80 -d ghcr.io/fabian-thomas/vocab-ocr
 ```
-where `--restart=always` is optional. If you want the server running on some other port than 80 use `-p {YOUR_PORT}:80` on the run command.
+where `--restart=always` is optional and `{YOUR_PORT}` should be replaced by some free port.
 
 ##### Additional languages:
 
