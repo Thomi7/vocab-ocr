@@ -91,14 +91,14 @@ def preprocess_image_greenwich_right(image):
     original = image
 
     # make blue pixels black and remove non-blue pixels
-    threshold = 150
+    threshold = 190 # 150-200
     lower = np.array([255-threshold , 0, 0])
     upper = np.array([255, threshold, threshold]) # BGR
     mask = cv2.inRange(image, lower, upper)
     full_black = np.full(image.shape, 0, dtype=np.uint8)
     image = cv2.bitwise_and(image, full_black, mask= mask)
 
-    # readd old background
+    # read old background
     mask = cv2.bitwise_not(mask)
     image = cv2.bitwise_or(image, cv2.bitwise_and(original, original, mask=mask))
 
@@ -108,7 +108,7 @@ def preprocess_image_greenwich_right(image):
 
     return image
 
-def right_image_csv(image, left_lang, right_lang, mode='default'):
+def right_image_tsv(image, left_lang, right_lang, mode='default'):
 
     # only default pre- and postprocessing in other modes
     preprocess_left = lambda i : i
@@ -127,17 +127,17 @@ def right_image_csv(image, left_lang, right_lang, mode='default'):
 
     return process(image, left_lang, right_lang, preprocess_left, preprocess_right, postprocess_left, postprocess_right)
 
-def images_to_csv(images, left_lang, right_lang, mode='default'):
+def images_to_tsv(images, left_lang, right_lang, mode='default'):
     out = ""
     for image in images:
-        out += right_image_csv(image, left_lang, right_lang, mode) + "\n\n"
+        out += right_image_tsv(image, left_lang, right_lang, mode) + "\n\n"
     return out.strip()
 
 def process_directory(dir_path, left_lang, right_lang, mode='default'):
     images=[]
     for image in sorted(os.listdir(dir_path)):
         images.append(cv2.imread(os.path.join(dir_path, image)))
-    return images_to_csv(images, left_lang, right_lang, mode)
+    return images_to_tsv(images, left_lang, right_lang, mode)
 
 
 parser = argparse.ArgumentParser(description='Process some integers.')
